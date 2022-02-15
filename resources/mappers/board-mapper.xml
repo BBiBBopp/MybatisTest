@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+	<resultMap id="boardResultMap" type="board">
+		<result column="BOARD_NO" property="boardNo" />
+		<result column="BOARD_TITLE" property="boardTitle" />
+		<result column="USER_ID" property="boardWriter" />
+		<result column="COUNT" property="count" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="BOARD_CONTENT" property="boardContent" />
+	</resultMap>
+	<resultMap id="replyResultMap" type="reply">
+		<result column="REPLY_NO" property="replyNo" />
+		<result column="REPLY_CONTENT" property="replyContent" />
+		<result column="USER_ID" property="replyWriter" />
+		<result column="CREATE_DATE" property="createDate" />
+	</resultMap>
+	<select id="boardListCount" resultType="int">
+		SELECT 
+				COUNT(*)
+			FROM 
+				BOARD
+			WHERE 
+				STATUS='Y'
+	</select>
+	<select id="selectList" resultMap="boardResultMap">
+		SELECT 
+        		BOARD_NO
+        		,BOARD_TITLE
+        		,USER_ID
+        		,COUNT
+        		,CREATE_DATE
+    		FROM 
+        		BOARD B
+    		JOIN 
+        		MEMBER ON(BOARD_WRITER = USER_NO)
+    		WHERE 
+        		B.STATUS = 'Y'
+    		ORDER 
+    		   BY 
+        		CREATE_DATE DESC
+	</select>
+	<update id="increaseCount" parameterType="_int">
+		UPDATE
+        		BOARD
+    		SET
+        		COUNT = COUNT + 1
+  		  WHERE
+        		STATUS = 'Y'
+    		AND
+        		BOARD_NO = #{boardNo}
+	</update>
+	<select id="selectBoard" parameterType="_int" resultMap="boardResultMap">
+		SELECT 
+        		BOARD_NO
+        		,BOARD_TITLE
+        		,USER_ID
+        		,COUNT
+        		,CREATE_DATE
+        		,BOARD_CONTENT
+    	  FROM 
+        		BOARD B
+    	  JOIN 
+        		MEMBER ON(BOARD_WRITER = USER_NO)
+  		 WHERE
+        		B.STATUS = 'Y'
+     	   AND 
+        		BOARD_NO = #{boardNo}
+	</select>
+	<select id="selectReplyList" parameterType="_int" resultMap="replyResultMap">
+		SELECT 
+        		REPLY_NO
+        		,REPLY_CONTENT
+        		,USER_ID
+        		,CREATE_DATE
+    	  FROM 
+        		REPLY R
+    	  JOIN 
+        		MEMBER ON (REPLY_WRITER = USER_NO)
+  		 WHERE
+        		R.STATUS = 'Y'
+    	   AND
+        		REF_BNO = #{boardNo}
+	  ORDER BY
+        		CREATE_DATE DESC
+	</select>
+</mapper>
